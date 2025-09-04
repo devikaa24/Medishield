@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediShield Personal Assistant</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #0ea5e9;
+      --accent: #f59e0b;
+      --light: #f0f9ff;
+      --dark: #1e293b;
+      --success: #10b981;
+      --private: #7e22ce;
+      --public: #0d9488;
+      --modal-bg: rgba(0, 0, 0, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      padding-bottom: 100px;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.3;
+      z-index: -1;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 30px;
+      background: linear-gradient(to right, #2563eb, #0ea5e9);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+      transform: rotate(30deg);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-icon {
+      font-size: 2.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 25px;
+      text-align: center;
+      position: relative;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Popup Notice */
+    .popup {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1px solid #fcd34d;
+      padding: 20px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 800px;
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .notice-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .notice-content i {
+      font-size: 2rem;
+      color: #d97706;
+      margin-top: 5px;
+    }
+
+    .notice-content h3 {
+      color: #b45309;
+      margin-bottom: 8px;
+    }
+
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #b45309;
+      transition: transform 0.3s;
+    }
+
+    .close:hover {
+      transform: scale(1.2);
+    }
+
+    /* Features Section */
+    .intro {
+      margin: 40px auto;
+      max-width: 1200px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 40px 0;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px 25px;
+      text-align: center;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--primary);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .feature-card i {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+      transition: transform 0.3s;
+    }
+
+    .feature-card:hover i {
+      transform: scale(1.1);
+    }
+
+    .feature-card h3 {
+      color: var(--dark);
+      margin-bottom: 12px;
+    }
+
+    /* Comparison Section */
+    .comparison {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 30px;
+      margin: 40px auto;
+      max-width: 1200px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 50px;
+      background: #e0f2fe;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .filter-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s ease;
+      z-index: -1;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      color: white;
+    }
+
+    .filter-btn.active::before, .filter-btn:hover::before {
+      width: 100%;
+    }
+
+    .comparison-table {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th {
+      background: var(--primary);
+      color: white;
+      padding: 15px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    tr:hover {
+      background-color: #f0f9ff;
+    }
+
+    .private-row {
+      border-left: 4px solid var(--private);
+    }
+
+    .public-row {
+      border-left: 4px solid var(--public);
+    }
+
+    a {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    a:hover {
+      color: var(--primary);
+    }
+
+    a:hover::after {
+      width: 100%;
+    }
+
+    /* Simplified Chatbot */
+    .chatbot-container {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+      width: 380px;
+      height: 500px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      display: none;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .chatbot-container.active {
+      display: block;
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    df-messenger {
+      --df-messenger-bot-message: #e0f2fe;
+      --df-messenger-button-titlebar-color: var(--primary);
+      --df-messenger-chat-background-color: #f9fafb;
+      --df-messenger-font-color: #1e293b;
+      --df-messenger-send-icon: #2563eb;
+      --df-messenger-user-message: var(--primary);
+      height: 100% !important;
+      width: 100% !important;
+    }
+
+    df-messenger::part(chat-icon) {
+      display: none !important;
+    }
+
+    .chatbot-toggle {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.5);
+      transition: all 0.3s;
+      z-index: 1001;
+    }
+
+    .chatbot-toggle:hover {
+      transform: scale(1.1);
+      background: var(--secondary);
+    }
+
+    .chatbot-toggle.active {
+      display: none;
+    }
+
+    /* Claims Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--modal-bg);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 800px;
+      padding: 30px;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: modalIn 0.4s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes modalIn {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .modal-header h2 {
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .modal-header h2::after {
+      display: none;
+    }
+
+    .modal-close {
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .form-group input, 
+    .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus, 
+    .form-group select:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .calculate-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 25px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .calculate-btn:hover {
+      background: var(--secondary);
+    }
+
+    .prediction-result {
+      background: #f0f9ff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+      display: none;
+      border-left: 4px solid var(--primary);
+    }
+
+    .result-title {
+      font-size: 18px;
+      color: var(--primary);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .result-card h4 {
+      color: var(--dark);
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .result-card p {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .chart-container {
+      height: 150px;
+      margin-top: 20px;
+    }
+
+    /* Plan Selection */
+    .plan-selector {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .plan-btn {
+      padding: 12px 25px;
+      border: 2px solid #e0f2fe;
+      border-radius: 10px;
+      background: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plan-btn.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .plan-btn i {
+      font-size: 1.2rem;
+    }
+
+    .compare-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: block;
+      margin: 30px auto 0;
+      font-size: 1rem;
+    }
+
+    .compare-btn:hover {
+      background: #e69008;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .compare-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Comparison Modal */
+    .comparison-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--modal-bg);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .comparison-content {
+      background: white;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 1000px;
+      padding: 30px;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: modalIn 0.4s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .comparison-title {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th {
+      background: var(--primary);
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .comparison-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .comparison-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    .feature-header {
+      background: #e0f2fe !important;
+      font-weight: 600;
+      color: var(--dark) !important;
+    }
+
+    .highlight-diff {
+      background-color: #fffbeb;
+      font-weight: 600;
+    }
+
+    .highlight-best {
+      background-color: #d1fae5;
+      position: relative;
+    }
+
+    .highlight-best::after {
+      content: '✓';
+      position: absolute;
+      right: 10px;
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--dark);
+      font-size: 0.9rem;
+      margin-top: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    footer p {
+      margin: 8px 0;
+    }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .social-icons a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: #e0f2fe;
+      border-radius: 50%;
+      color: var(--primary);
+      font-size: 1.2rem;
+      transition: all 0.3s;
+    }
+
+    .social-icons a:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-5px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+      }
+      
+      .popup {
+        padding: 20px;
+        width: 95%;
+      }
+      
+      .table-controls {
+        flex-wrap: wrap;
+      }
+      
+      .result-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .chatbot-container {
+        width: 90%;
+        height: 400px;
+        bottom: 20px;
+        right: 5%;
+      }
+      
+      .chatbot-toggle {
+        bottom: 20px;
+        right: 20px;
+      }
+      
+      .plan-selector {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <i class="fas fa-shield-alt logo-icon"></i>
+      <h1>MediShield Personal Assistant</h1>
+    </div>
+    <p>Your AI-Powered Health Plan Advisor</p>
+  </header>
+
+  <!-- Personalized Notice -->
+  <div id="popup" class="popup">
+    <span class="close" onclick="document.getElementById('popup').style.display='none'">&times;</span>
+    <div class="notice-content">
+      <i class="fas fa-bell"></i>
+      <div>
+        <h3>Your Plan Update</h3>
+        <p>Based on your recent activity, <strong>MediShield Life premiums</strong> have changed as of June 2025.</p>
+        <p>Ask me: <em>"How does this affect my current plan?"</em></p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- Introduction Section -->
+    <section class="intro">
+      <h2>Find Your Perfect Health Coverage</h2>
+      <div class="features">
+        <div class="feature-card" id="planComparison">
+          <i class="fas fa-calculator"></i>
+          <h3>Plan Comparison</h3>
+          <p>Compare multiple plans side-by-side</p>
+        </div>
+        <div class="feature-card" id="personalAssistant">
+          <i class="fas fa-robot"></i>
+          <h3>Your AI Assistant</h3>
+          <p>24/7 personalized guidance</p>
+        </div>
+        <div class="feature-card" id="claimsPredictor">
+          <i class="fas fa-chart-line"></i>
+          <h3>Claims Predictor</h3>
+          <p>Estimate your potential claims</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ISP Comparison -->
+    <section class="comparison" id="comparisonSection">
+      <h2>Integrated Shield Plan Comparison</h2>
+      <div class="table-controls">
+        <button class="filter-btn active" data-filter="all">All Plans</button>
+        <button class="filter-btn" data-filter="private">Private Hospitals</button>
+        <button class="filter-btn" data-filter="public">Public Hospitals</button>
+      </div>
+      
+      <div class="plan-selector" id="planSelector">
+        <button class="plan-btn" data-plan="ntuc">
+          <i class="fas fa-building"></i> NTUC Income
+        </button>
+        <button class="plan-btn" data-plan="ge">
+          <i class="fas fa-hospital"></i> Great Eastern
+        </button>
+        <button class="plan-btn" data-plan="axa">
+          <i class="fas fa-building"></i> AXA
+        </button>
+        <button class="plan-btn" data-plan="prudential">
+          <i class="fas fa-hospital"></i> Prudential
+        </button>
+        <button class="plan-btn" data-plan="raffles">
+          <i class="fas fa-building"></i> Raffles Health
+        </button>
+        <button class="plan-btn" data-plan="singlife">
+          <i class="fas fa-hospital"></i> Singlife
+        </button>
+      </div>
+      
+      <button class="compare-btn" id="compareBtn" disabled>
+        <i class="fas fa-balance-scale"></i> Compare Selected Plans
+      </button>
+      
+      <div class="comparison-table">
+        <table>
+          <tr>
+            <th>Provider</th>
+            <th>Coverage</th>
+            <th>Premium</th>
+            <th>Hospital Class</th>
+            <th>Plan Link</th>
+          </tr>
+          <tr class="private-row" data-type="private">
+            <td><i class="fas fa-building"></i> NTUC Income</td>
+            <td>Up to Class A</td>
+            <td>$300/year</td>
+            <td><span class="tag private">Private</span></td>
+            <td><a href="https://www.income.com.sg/health-insurance/enhanced-incomeshield" target="_blank">View Plan <i class="fas fa-external-link-alt"></i></a></td>
+          </tr>
+          <tr class="public-row" data-type="public">
+            <td><i class="fas fa-hospital"></i> Great Eastern</td>
+            <td>Up to Class B1</td>
+            <td>$250/year</td>
+            <td><span class="tag public">Public</span></td>
+            <td><a href="https://www.greateasternlife.com/sg/en/personal-insurance/our-products/health-insurance/great-supremehealth.html" target="_blank">View Plan <i class="fas fa-external-link-alt"></i></a></td>
+          </tr>
+          <tr class="private-row" data-type="private">
+            <td><i class="fas fa-building"></i> AXA</td>
+            <td>Up to Class A</td>
+            <td>$320/year</td>
+            <td><span class="tag private">Private</span></td>
+            <td><a href="https://myaxa-singapore.cdn.axa-contento-118412.eu/myaxa-singapore%2Fb9c21620-b268-4d00-968b-72a3b07f3f35_axa+shield+brochure.pdf" target="_blank">View Plan <i class="fas fa-external-link-alt"></i></a></td>
+          </tr>
+          <tr class="public-row" data-type="public">
+            <td><i class="fas fa-hospital"></i> Prudential</td>
+            <td>Up to Class B1</td>
+            <td>$270/year</td>
+            <td><span class="tag public">Public</span></td>
+            <td><a href="https://www.prudential.com.sg/products/health-insurance/medical/prushield" target="_blank">View Plan <i class="fas fa-external-link-alt"></i></a></td>
+          </tr>
+          <tr class="private-row" data-type="private">
+            <td><i class="fas fa-building"></i> Raffles Health</td>
+            <td>Up to Class A</td>
+            <td>$310/year</td>
+            <td><span class="tag private">Private</span></td>
+            <td><a href="https://www.raffleshealthinsurance.com/integrated-shield-plan" target="_blank">View Plan <i class="fas fa-external-link-alt"></i></a></td>
+          </tr>
+          <tr class="public-row" data-type="public">
+            <td><i class="fas fa-hospital"></i> Singlife</td>
+            <td>Up to Class B1</td>
+            <td>$260/year</td>
+            <td><span class="tag public">Public</span></td>
+            <td><a href="https://singlife.com/en/medical-insurance/shield" target="_blank">View Plan <i class="fas fa-external-link-alt"></i></a></td>
+          </tr>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Chatbot Toggle Button -->
+  <div class="chatbot-toggle" id="chatbotToggle">
+    <i class="fas fa-comment-dots"></i>
+  </div>
+ -->
+
+  <!-- Claims Predictor Modal -->
+  <div class="modal" id="claimsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-chart-line"></i> Claims Predictor Engine</h2>
+        <span class="modal-close" id="modalClose">&times;</span>
+      </div>
+      
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input type="number" id="age" min="18" max="100" placeholder="Enter your age">
+      </div>
+      
+      <div class="form-group">
+        <label for="condition">Medical Condition</label>
+        <select id="condition">
+          <option value="">Select condition</option>
+          <option value="heart">Heart Disease</option>
+          <option value="cancer">Cancer</option>
+          <option value="diabetes">Diabetes</option>
+          <option value="respiratory">Respiratory Disease</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="treatment">Treatment Type</label>
+        <select id="treatment">
+          <option value="">Select treatment</option>
+          <option value="surgery">Surgery</option>
+          <option value="chemotherapy">Chemotherapy</option>
+          <option value="radiotherapy">Radiotherapy</option>
+          <option value="medication">Medication</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="hospital">Hospital Class</label>
+        <select id="hospital">
+          <option value="">Select class</option>
+          <option value="A">Class A</option>
+          <option value="B1">Class B1</option>
+          <option value="private">Private Hospital</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="coverage">Current Coverage</label>
+        <select id="coverage">
+          <option value="">Select coverage</option>
+          <option value="basic">Basic MediShield</option>
+          <option value="public">Public Hospital Plan</option>
+          <option value="private">Private Hospital Plan</option>
+        </select>
+      </div>
+      
+      <button class="calculate-btn" id="calculateBtn">
+        <i class="fas fa-calculator"></i> Calculate Claim Estimate
+      </button>
+      
+      <div class="prediction-result" id="predictionResult">
+        <div class="result-title">
+          <i class="fas fa-chart-pie"></i>
+          <h3>Claim Prediction Results</h3>
+        </div>
+        
+        <div class="result-content">
+          <div class="result-card">
+            <h4>Estimated Claim Amount</h4>
+            <p id="claimAmount">$8,500</p>
+          </div>
+          
+          <div class="result-card">
+            <h4>Approval Probability</h4>
+            <p id="approvalProb">85%</p>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="claimChart"></canvas>
+        </div>
+        
+        <div class="result-details">
+          <h4><i class="fas fa-lightbulb"></i> Recommendation</h4>
+          <p id="recommendation">Based on your inputs, we recommend reviewing your coverage to ensure adequate protection for your condition.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Modal -->
+  <div class="comparison-modal" id="comparisonModal">
+    <div class="comparison-content">
+      <div class="modal-header">
+        <h2 class="comparison-title">Plan Comparison</h2>
+        <span class="modal-close" id="comparisonModalClose">&times;</span>
+      </div>
+      
+      <div class="comparison-table">
+        <table id="detailedComparison">
+          <!-- Comparison table will be generated here -->
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="social-icons">
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+    <p>Need human assistance? Call: <strong>+65 6123 4567</strong></p>
+    <p>&copy; 2025 MediShield Assistant. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Plan data for comparison
+    const planData = {
+      ntuc: {
+        name: "NTUC Income",
+        coverage: "Up to Class A",
+        premium: "$300/year",
+        hospital: "Private",
+        deductible: "$3,500",
+        copay: "10%",
+        annualLimit: "No limit",
+        preExisting: "1 year waiting",
+        maternity: "Not covered",
+        icon: "fas fa-building"
+      },
+      ge: {
+        name: "Great Eastern",
+        coverage: "Up to Class B1",
+        premium: "$250/year",
+        hospital: "Public",
+        deductible: "$2,000",
+        copay: "15%",
+        annualLimit: "$500,000",
+        preExisting: "Covered after 3 years",
+        maternity: "Covered with rider",
+        icon: "fas fa-hospital"
+      },
+      axa: {
+        name: "AXA",
+        coverage: "Up to Class A",
+        premium: "$320/year",
+        hospital: "Private",
+        deductible: "$3,000",
+        copay: "5%",
+        annualLimit: "No limit",
+        preExisting: "Not covered",
+        maternity: "Covered with rider",
+        icon: "fas fa-building"
+      },
+      prudential: {
+        name: "Prudential",
+        coverage: "Up to Class B1",
+        premium: "$270/year",
+        hospital: "Public",
+        deductible: "$2,500",
+        copay: "10%",
+        annualLimit: "$1,000,000",
+        preExisting: "Covered after 2 years",
+        maternity: "Covered with rider",
+        icon: "fas fa-hospital"
+      },
+      raffles: {
+        name: "Raffles Health",
+        coverage: "Up to Class A",
+        premium: "$310/year",
+        hospital: "Private",
+        deductible: "$3,200",
+        copay: "8%",
+        annualLimit: "No limit",
+        preExisting: "Covered after 1 year",
+        maternity: "Not covered",
+        icon: "fas fa-building"
+      },
+      singlife: {
+        name: "Singlife",
+        coverage: "Up to Class B1",
+        premium: "$260/year",
+        hospital: "Public",
+        deductible: "$1,800",
+        copay: "12%",
+        annualLimit: "$750,000",
+        preExisting: "Covered after 3 years",
+        maternity: "Covered with rider",
+        icon: "fas fa-hospital"
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Chatbot functionality
+      const chatbotToggle = document.getElementById('chatbotToggle');
+      const dfMessenger = document.querySelector('df-messenger');
+      chatbotToggle.addEventListener('click', () => {
+        dfMessenger.style.display = 'block';
+        chatbotToggle.classList.add('active');
+        dfMessenger.addEventListener('df-messenger-close', () => {
+          chatbotToggle.classList.remove('active');
+        });
+
+    });
+
+      // document.getElementById('personalAssistant').addEventListener('click', () => {
+      //   dfMessenger.style.display = 'block';
+      // });
+
+      
+      // Feature card functionality
+      document.getElementById('personalAssistant').addEventListener('click', () => {
+        dfMessenger.style.display = 'block';
+        chatbotToggle.classList.add('active');
+      });
+      
+      // Scroll to comparison section
+      document.getElementById('planComparison').addEventListener('click', () => {
+        document.getElementById('comparisonSection').scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+      
+      // Plan selection functionality
+      const planButtons = document.querySelectorAll('.plan-btn');
+      const compareButton = document.getElementById('compareBtn');
+      let selectedPlans = [];
+      
+      planButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const plan = button.dataset.plan;
+          
+          if (button.classList.contains('selected')) {
+            button.classList.remove('selected');
+            selectedPlans = selectedPlans.filter(p => p !== plan);
+          } else {
+            if (selectedPlans.length < 3) {
+              button.classList.add('selected');
+              selectedPlans.push(plan);
+            } else {
+              alert("You can compare up to 3 plans at a time");
+            }
+          }
+          
+          // Update compare button
+          if (selectedPlans.length > 1) {
+            compareButton.disabled = false;
+            compareButton.innerHTML = `<i class="fas fa-balance-scale"></i> Compare ${selectedPlans.length} Plans`;
+          } else {
+            compareButton.disabled = true;
+            compareButton.innerHTML = `<i class="fas fa-balance-scale"></i> Compare Selected Plans`;
+          }
+        });
+      });
+      
+      // Compare button functionality
+      compareButton.addEventListener('click', () => {
+        if (selectedPlans.length > 1) {
+          showComparisonModal(selectedPlans);
+        }
+      });
+      
+      // Claims predictor modal
+      const claimsModal = document.getElementById('claimsModal');
+      const claimsBtn = document.getElementById('claimsPredictor');
+      const modalClose = document.getElementById('modalClose');
+      const calculateBtn = document.getElementById('calculateBtn');
+      const predictionResult = document.getElementById('predictionResult');
+      
+      claimsBtn.addEventListener('click', () => {
+        claimsModal.style.display = 'flex';
+      });
+      
+      modalClose.addEventListener('click', () => {
+        claimsModal.style.display = 'none';
+      });
+      
+      // Comparison modal close
+      const comparisonModal = document.getElementById('comparisonModal');
+      const comparisonModalClose = document.getElementById('comparisonModalClose');
+      
+      comparisonModalClose.addEventListener('click', () => {
+        comparisonModal.style.display = 'none';
+      });
+      
+      // Close modals when clicking outside
+      window.addEventListener('click', (e) => {
+        if (e.target === claimsModal) {
+          claimsModal.style.display = 'none';
+        }
+        if (e.target === comparisonModal) {
+          comparisonModal.style.display = 'none';
+        }
+      });
+      
+      // Calculate claim estimate
+      calculateBtn.addEventListener('click', () => {
+        const age = document.getElementById('age').value;
+        const condition = document.getElementById('condition').value;
+        
+        if (!age || !condition) {
+          alert("Please fill in all required fields");
+          return;
+        }
+        
+        // Simulate calculation
+        const claimAmounts = {
+          heart: { min: 10000, max: 25000 },
+          cancer: { min: 15000, max: 50000 },
+          diabetes: { min: 2000, max: 8000 },
+          respiratory: { min: 5000, max: 15000 },
+          other: { min: 3000, max: 10000 }
+        };
+        
+        const amount = claimAmounts[condition] || { min: 5000, max: 15000 };
+        const claimValue = Math.floor(Math.random() * (amount.max - amount.min + 1)) + amount.min;
+        const approvalProb = 80 + Math.floor(Math.random() * 16); // 80-95%
+        
+        document.getElementById('claimAmount').textContent = `$${claimValue.toLocaleString()}`;
+        document.getElementById('approvalProb').textContent = `${approvalProb}%`;
+        
+        // Generate recommendation
+        const recommendations = {
+          heart: "Cardiac treatments are typically well-covered, but consider supplemental coverage for specialized procedures.",
+          cancer: "Oncology treatments can be expensive - review your annual limits and consider critical illness riders.",
+          diabetes: "While coverage is generally good for diabetes, ensure medication and regular checkups are included.",
+          respiratory: "Respiratory conditions often require ongoing care - verify your coverage for long-term treatments.",
+          other: "Review your policy details to ensure adequate coverage for your specific condition."
+        };
+        
+        document.getElementById('recommendation').textContent = 
+          recommendations[condition] || "Based on your inputs, we recommend reviewing your coverage to ensure adequate protection.";
+        
+        // Show result
+        predictionResult.style.display = 'block';
+        
+        // Scroll to result
+        predictionResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Generate chart
+        generateClaimChart(claimValue, amount.max);
+      });
+      
+      // Filter table rows
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const tableRows = document.querySelectorAll('.comparison-table tr[data-type]');
+      
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Update active button
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          
+          const filter = button.dataset.filter;
+          
+          tableRows.forEach(row => {
+            if (filter === 'all') {
+              row.style.display = '';
+            } else {
+              if (row.dataset.type === filter) {
+                row.style.display = '';
+              } else {
+                row.style.display = 'none';
+              }
+            }
+          });
+        });
+      });
+      
+      // Add tag styling
+      const tags = document.querySelectorAll('.tag');
+      tags.forEach(tag => {
+        if(tag.classList.contains('private')) {
+          tag.style.backgroundColor = 'rgba(126, 34, 206, 0.1)';
+          tag.style.color = '#7e22ce';
+        } else {
+          tag.style.backgroundColor = 'rgba(13, 148, 136, 0.1)';
+          tag.style.color = '#0d9488';
+        }
+        tag.style.padding = '4px 10px';
+        tag.style.borderRadius = '20px';
+        tag.style.fontSize = '0.85rem';
+        tag.style.fontWeight = '600';
+        tag.style.display = 'inline-block';
+      });
+    });
+    
+    function generateClaimChart(claimValue, maxValue) {
+      const ctx = document.getElementById('claimChart').getContext('2d');
+      
+      // Destroy previous chart if exists
+      if (window.claimChart) {
+        window.claimChart.destroy();
+      }
+      
+      window.claimChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Your Claim', 'Potential Max'],
+          datasets: [{
+            data: [claimValue, maxValue - claimValue],
+            backgroundColor: ['#2563eb', '#e0f2fe'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: $${context.raw.toLocaleString()}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    function showComparisonModal(plans) {
+      const comparisonModal = document.getElementById('comparisonModal');
+      const table = document.getElementById('detailedComparison');
+      
+      // Clear existing table
+      table.innerHTML = '';
+      
+      // Create table header
+      let headerRow = `<tr><th class="feature-header">Features</th>`;
+      plans.forEach(planId => {
+        const plan = planData[planId];
+        headerRow += `<th><i class="${plan.icon}"></i> ${plan.name}</th>`;
+      });
+      headerRow += `</tr>`;
+      table.innerHTML = headerRow;
+      
+      // Define comparison features
+      const features = [
+        { name: "Coverage", key: "coverage" },
+        { name: "Annual Premium", key: "premium" },
+        { name: "Hospital Class", key: "hospital" },
+        { name: "Deductible", key: "deductible" },
+        { name: "Co-payment", key: "copay" },
+        { name: "Annual Limit", key: "annualLimit" },
+        { name: "Pre-existing Conditions", key: "preExisting" },
+        { name: "Maternity Coverage", key: "maternity" }
+      ];
+      
+      // Add feature rows
+      features.forEach(feature => {
+        let row = `<tr><td class="feature-header">${feature.name}</td>`;
+        const values = [];
+        
+        plans.forEach(planId => {
+          values.push(planData[planId][feature.key]);
+          row += `<td>${planData[planId][feature.key]}</td>`;
+        });
+        
+        // Check if values are different
+        const allEqual = values.every(v => v === values[0]);
+        if (!allEqual) {
+          // Find best value (simplified logic)
+          if (feature.key === "premium" || feature.key === "deductible" || feature.key === "copay") {
+            // Lower is better
+            const minValue = Math.min(...values.map(v => parseFloat(v.replace(/[^\d.]/g, ''))));
+            row = row.replace(/<td>(.*?)<\/td>/g, (match, content) => {
+              const value = parseFloat(content.replace(/[^\d.]/g, ''));
+              return value === minValue ? `<td class="highlight-best">${content}</td>` : `<td>${content}</td>`;
+            });
+          } else if (feature.key === "annualLimit" || feature.key === "coverage") {
+            // Higher or unlimited is better
+            const maxValue = Math.max(...values.map(v => {
+              if (v === "No limit") return Infinity;
+              return parseFloat(v.replace(/[^\d.]/g, '') || 0);
+            }));
+            row = row.replace(/<td>(.*?)<\/td>/g, (match, content) => {
+              const value = content === "No limit" ? Infinity : parseFloat(content.replace(/[^\d.]/g, '') || 0);
+              return value === maxValue ? `<td class="highlight-best">${content}</td>` : `<td>${content}</td>`;
+            });
+          } else {
+            row = row.replace(/<td>/g, '<td class="highlight-diff">');
+          }
+        }
+        
+        row += `</tr>`;
+        table.innerHTML += row;
+      });
+      
+      comparisonModal.style.display = 'flex';
+    }
+  </script>
+</body>
+<df-messenger
+  intent="WELCOME"
+  chat-title="MediShield Assistant"
+  agent-id="4c256fec-4de2-46e4-9e77-525a87b27da2"
+  language-code="en"
+  chat-icon="none">
+</df-messenger>
+</html>
